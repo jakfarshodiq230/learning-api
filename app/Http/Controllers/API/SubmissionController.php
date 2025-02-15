@@ -9,21 +9,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\API\BaseController as BaseController;
+use App\Models\User;
 
 class SubmissionController extends BaseController
 {
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function index(): JsonResponse
-    {
-        $Submission = Submission::all();
-
-        return $this->sendResponse(SubmissionResource::collection($Submission), 'Submission retrieved successfully.');
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -31,81 +20,57 @@ class SubmissionController extends BaseController
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request): JsonResponse
+    public function store($student_id, Request $request): JsonResponse
     {
         $input = $request->all();
 
+        // Check if the student_id exists in the users table
+        if (User::find($student_id)) {
+            return $this->sendError('Student not found.');
+        }
+
         $validator = Validator::make($input, [
-            'discussion_id' => 'required|integer',
-            'user_id' => 'required|integer',
-            'content' => 'required|string'
+            'assignment_id' => 'required|integer',
+            'file_path' => 'required|string',
+            'score' => 'required|integer|min:0|max:100'
         ]);
 
         if ($validator->fails()) {
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
+        $input['student_id'] = $student_id;
         $Submission = Submission::create($input);
 
         return $this->sendResponse(new SubmissionResource($Submission), 'Submission created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function show($id): JsonResponse
-    {
-        $Submission = Submission::find($id);
-
-        if (is_null($Submission)) {
-            return $this->sendError('Submission not found.');
-        }
-
-        return $this->sendResponse(new SubmissionResource($Submission), 'Submission retrieved successfully.');
-    }
 
     /**
-     * Update the specified resource in storage.
+     * Upload a file for submission.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, Submission $Submission): JsonResponse
+    public function upload(Request $request): JsonResponse
     {
-        $input = $request->all();
-
-        $validator = Validator::make($input, [
-            'discussion_id' => 'required|integer',
-            'user_id' => 'required|integer',
-            'content' => 'required|string'
+        $validator = Validator::make($request->all(), [
+            'assignment_id' => 'required|integer',
+            'student_id' => 'required|integer',
+            'file_path' => 'required|file|mimes:pdf,doc,docx,zip|max:2048',
+            'score' => 'required|integer|min:0|max:100',
         ]);
 
         if ($validator->fails()) {
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
-        $Submission->discussion_id = $input['discussion_id'];
-        $Submission->user_id = $input['user_id'];
-        $Submission->content = $input['content'];
-        $Submission->save();
+        if ($request->file('file_path')->isValid()) {
+            $path = $request->file('file_path')->store('submissions');
 
-        return $this->sendResponse(new SubmissionResource($Submission), 'Submission updated successfully.');
-    }
+            return $this->sendResponse(['file_path' => $path], 'File uploaded successfully.');
+        }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function destroy(Submission $Submission): JsonResponse
-    {
-        $Submission->delete();
-
-        return $this->sendResponse([], 'Submission deleted successfully.');
+        return $this->sendError('File upload failed.');
     }
 }

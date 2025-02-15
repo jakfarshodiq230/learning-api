@@ -27,13 +27,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('courses', CourseController::class)->middleware('role:dosen');
     Route::post('courses/{id}/enroll', [CourseController::class, 'enroll'])->middleware('role:mahasiswa');
 
-    Route::resource('material', MaterialController::class)->middleware('role:dosen');
+    Route::resource('materials', MaterialController::class)->middleware('role:dosen');
     Route::get('materials/{id}/download', [MaterialController::class, 'download'])->middleware('role:mahasiswa');
 
-    Route::resource('assigment', AssigmentController::class);
+    Route::post('assignments', [AssigmentController::class, 'store'])->middleware('role:dosen');
+    Route::post('submissions', [SubmissionController::class, 'upload'])->middleware('role:mahasiswa');
+    Route::post('submissions/{id}/grade', [SubmissionController::class, 'store'])->middleware('role:dosen');
 
-    Route::resource('discussion', DiscussionController::class);
-
-    Route::resource('reply', ReplyController::class);
-    Route::resource('submisson', SubmissionController::class);
+    Route::post('discussions', [DiscussionController::class, 'store'])->middleware('role:dosen,mahasiswa');
+    Route::post('discussions/{id}/replies', [ReplyController::class, 'store'])->middleware('role:dosen,mahasiswa');
 });
