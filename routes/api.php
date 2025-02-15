@@ -27,7 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('courses', CourseController::class)->middleware('role:dosen');
     Route::post('courses/{id}/enroll', [CourseController::class, 'enroll'])->middleware('role:mahasiswa');
 
-    Route::resource('materials', MaterialController::class)->middleware('role:dosen');
+    Route::post('materials', [MaterialController::class, 'store'])->middleware('role:dosen');
     Route::get('materials/{id}/download', [MaterialController::class, 'download'])->middleware('role:mahasiswa');
 
     Route::post('assignments', [AssigmentController::class, 'store'])->middleware('role:dosen');
@@ -36,4 +36,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('discussions', [DiscussionController::class, 'store'])->middleware('role:dosen,mahasiswa');
     Route::post('discussions/{id}/replies', [ReplyController::class, 'store'])->middleware('role:dosen,mahasiswa');
+
+    Route::get('reports/courses', [CourseController::class, 'courseStatistics'])->middleware('role:dosen');
+    Route::get('reports/assignments', [AssigmentController::class, 'assignmentStatistics'])->middleware('role:dosen');
+    Route::get('reports/students/{id}', [SubmissionController::class, 'studentStatistics'])->middleware('role:dosen');
 });

@@ -14,18 +14,6 @@ class MaterialController extends BaseController
 {
 
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function index(): JsonResponse
-    {
-        $Material = Material::all();
-
-        return $this->sendResponse(MaterialResource::collection($Material), 'Material retrieved successfully.');
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -38,11 +26,17 @@ class MaterialController extends BaseController
         $validator = Validator::make($input, [
             'course_id' => 'required|integer',
             'title' => 'required|string',
-            'file_path' => 'required|string'
+            'file' => 'required|file|mimes:pdf,doc,docx,zip'
         ]);
 
         if ($validator->fails()) {
             return $this->sendError('Validation Error.', $validator->errors());
+        }
+
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $filePath = $file->store('material', 'public');
+            $input['file_path'] = $filePath;
         }
 
         $Material = Material::create($input);
@@ -51,61 +45,25 @@ class MaterialController extends BaseController
     }
 
     /**
-     * Display the specified resource.
+     * Download the specified material file.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\BinaryFileResponse
      */
-    public function show($id): JsonResponse
+    public function download($id)
     {
-        $Material = Material::find($id);
+        $material = Material::find($id);
 
-        if (is_null($Material)) {
+        if (is_null($material)) {
             return $this->sendError('Material not found.');
         }
 
-        return $this->sendResponse(new MaterialResource($Material), 'Material retrieved successfully.');
-    }
+        $filePath = storage_path('app/public/' . $material->file_path);
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function update(Request $request, Material $Material): JsonResponse
-    {
-        $input = $request->all();
-
-        $validator = Validator::make($input, [
-            'course_id' => 'required|integer',
-            'title' => 'required|string',
-            'file_path' => 'required|string'
-        ]);
-
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors());
+        if (!file_exists($filePath)) {
+            return $this->sendError('File not found.');
         }
 
-        $Material->course_id = $input['course_id'];
-        $Material->title = $input['title'];
-        $Material->file_path = $input['file_path'];
-        $Material->save();
-
-        return $this->sendResponse(new MaterialResource($Material), 'Material updated successfully.');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function destroy(Material $Material): JsonResponse
-    {
-        $Material->delete();
-
-        return $this->sendResponse([], 'Material deleted successfully.');
+        return response()->download($filePath);
     }
 }
