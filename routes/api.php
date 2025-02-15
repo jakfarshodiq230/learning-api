@@ -22,7 +22,7 @@ Route::controller(RegisterController::class)->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
 
-    // Route::post('logout', 'logout');
+    Route::post('logout', [RegisterController::class, 'logout']);
 
     Route::resource('courses', CourseController::class)->middleware('role:dosen');
     Route::post('courses/{id}/enroll', [CourseController::class, 'enroll'])->middleware('role:mahasiswa');
