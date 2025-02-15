@@ -20,8 +20,8 @@ class SubmissionResource extends JsonResource
             'student_id' => $this->student_id,
             'file_path' => $this->file_path,
             'score' => $this->score,
-            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
-            'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
+            'created_at' => $this->created_at ? $this->created_at->format('Y-m-d H:i:s') : null,
+            'updated_at' => $this->updated_at ? $this->updated_at->format('Y-m-d H:i:s') : null,
         ];
     }
 }

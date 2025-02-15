@@ -32,7 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('assignments', [AssigmentController::class, 'store'])->middleware('role:dosen');
     Route::post('submissions', [SubmissionController::class, 'upload'])->middleware('role:mahasiswa');
-    Route::post('submissions/{id}/grade', [SubmissionController::class, 'store'])->middleware('role:dosen');
+    Route::post('submissions/{id}/grade', [SubmissionController::class, 'updateScore'])->middleware('role:dosen');
 
     Route::post('discussions', [DiscussionController::class, 'store'])->middleware('role:dosen,mahasiswa');
     Route::post('discussions/{id}/replies', [ReplyController::class, 'store'])->middleware('role:dosen,mahasiswa');
