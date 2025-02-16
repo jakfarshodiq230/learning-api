@@ -1,6 +1,6 @@
 # E-Learning Kampus
 
-Aplikasi E-Learning Kampus dibangun dengan Laravel.
+Aplikasi E-Learning Kampus dibangun dengan Laravel dan menggunakan Laravel Sanctum untuk autentikasi. Sistem ini mendukung dua peran pengguna, yaitu Mahasiswa dan Dosen.
 
 ## Instalasi
 
@@ -9,6 +9,7 @@ Aplikasi E-Learning Kampus dibangun dengan Laravel.
 3. Buat file `.env` dan sesuaikan dengan konfigurasi database Anda.
 4. Jalankan `php artisan migrate` untuk menjalankan migrasi.
 5. Jalankan `php artisan serve` untuk menjalankan server.
+6. Buka `http://127.0.0.1:8000/api/documentation` untuk melihat dokumentasi.
 
 ## Endpoint
 
