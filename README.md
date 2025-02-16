@@ -6,10 +6,29 @@ Aplikasi E-Learning Kampus dibangun dengan Laravel dan menggunakan Laravel Sanct
 
 1. Clone repository ini.
 2. Jalankan `composer install` untuk menginstal dependensi.
-3. Buat file `.env` dan sesuaikan dengan konfigurasi database Anda.
-4. Jalankan `php artisan migrate` untuk menjalankan migrasi.
-5. Jalankan `php artisan serve` untuk menjalankan server.
-6. Buka `http://127.0.0.1:8000/api/documentation` untuk melihat dokumentasi.
+3. Buat file `.env` dan sesuaikan dengan konfigurasi database Anda:
+    ```env
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=nama_database
+    DB_USERNAME=username_database
+    DB_PASSWORD=password_database
+    ```
+4. Konfigurasi pengaturan email di file `.env` Anda:
+    ```env
+    MAIL_MAILER=smtp
+    MAIL_HOST=smtp.example.com
+    MAIL_PORT=587
+    MAIL_USERNAME=your_email@example.com
+    MAIL_PASSWORD=your_email_password
+    MAIL_ENCRYPTION=tls
+    MAIL_FROM_ADDRESS=your_email@example.com
+    MAIL_FROM_NAME="${APP_NAME}"
+    ```
+5. Jalankan `php artisan migrate` untuk menjalankan migrasi.
+6. Jalankan `php artisan serve` untuk menjalankan server.
+7. Buka `http://127.0.0.1:8000/api/documentation` untuk melihat dokumentasi.
 
 ## Endpoint
 
