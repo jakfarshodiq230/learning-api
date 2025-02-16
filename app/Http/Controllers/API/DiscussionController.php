@@ -10,14 +10,51 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * @OA\Schema(
+ *     schema="DiscussionResource",
+ *     type="object",
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="course_id", type="integer", example=1),
+ *     @OA\Property(property="user_id", type="integer", example=1),
+ *     @OA\Property(property="content", type="string", example="This is a discussion content"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", example="2023-10-01T00:00:00.000000Z"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", example="2023-10-01T00:00:00.000000Z")
+ * )
+ */
 class DiscussionController extends BaseController
 {
 
+
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * @OA\Post(
+     *     path="/api/discussions",
+     *     summary="Create a new discussion",
+     *     tags={"Discussions"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"course_id","user_id","content"},
+     *             @OA\Property(property="course_id", type="integer", example=1),
+     *             @OA\Property(property="user_id", type="integer", example=1),
+     *             @OA\Property(property="content", type="string", example="This is a discussion content")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/DiscussionResource")
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Validation Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Validation Error."),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function store(Request $request): JsonResponse
     {

@@ -11,14 +11,63 @@ use App\Models\Reply;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * @OA\Schema(
+ *     schema="ReplyResource",
+ *     type="object",
+ *     @OA\Property(property="id", type="integer"),
+ *     @OA\Property(property="discussion_id", type="integer"),
+ *     @OA\Property(property="user_id", type="integer"),
+ *     @OA\Property(property="content", type="string"),
+ *     @OA\Property(property="created_at", type="string", format="date-time"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ */
 class ReplyController extends BaseController
 {
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * @OA\Post(
+     *     path="/api/discussions/{id}/replies",
+     *     summary="Store a newly created reply",
+     *     tags={"Replies"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="user_id", type="integer"),
+     *             @OA\Property(property="content", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Reply created successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/ReplyResource")
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Validation Error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="error", type="string"),
+     *             @OA\Property(property="errors", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Discussion not found",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     )
+     * )
      */
     public function store(Request $request, $discussion_id): JsonResponse
     {

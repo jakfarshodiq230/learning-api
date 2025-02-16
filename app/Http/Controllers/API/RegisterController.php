@@ -11,10 +11,43 @@ use Illuminate\Http\JsonResponse;
 
 class RegisterController extends BaseController
 {
+
     /**
-     * Register api
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * @OA\Post(
+     *     path="/api/register",
+     *     summary="Register a new user",
+     *     tags={"Authentication"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name","email","password","c_password","role"},
+     *             @OA\Property(property="name", type="string", example="John Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="john.doe@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="password"),
+     *             @OA\Property(property="c_password", type="string", format="password", example="password"),
+     *             @OA\Property(property="role", type="string", example="user")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User register successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="object",
+     *                 @OA\Property(property="token", type="string", example="token"),
+     *                 @OA\Property(property="name", type="string", example="John Doe")
+     *             ),
+     *             @OA\Property(property="message", type="string", example="User register successfully.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Validation Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Validation Error."),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function register(Request $request): JsonResponse
     {
@@ -40,9 +73,38 @@ class RegisterController extends BaseController
     }
 
     /**
-     * Login api
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * @OA\Post(
+     *     path="/api/login",
+     *     summary="Login a user",
+     *     tags={"Authentication"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email","password"},
+     *             @OA\Property(property="email", type="string", format="email", example="john.doe@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="password")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User login successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="object",
+     *                 @OA\Property(property="token", type="string", example="token"),
+     *                 @OA\Property(property="name", type="string", example="John Doe")
+     *             ),
+     *             @OA\Property(property="message", type="string", example="User login successfully.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorised",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Unauthorised."),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function login(Request $request): JsonResponse
     {
@@ -59,10 +121,30 @@ class RegisterController extends BaseController
         }
     }
 
+
     /**
-     * Logout api
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * @OA\Post(
+     *     path="/api/logout",
+     *     summary="Logout a user",
+     *     tags={"Authentication"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="User logout successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="object"),
+     *             @OA\Property(property="message", type="string", example="User logout successfully.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorised",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Unauthorised."),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function logout(Request $request): JsonResponse
     {

@@ -2,22 +2,59 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Http\Resources\MaterialResource;
 use App\Models\Material;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
+/**
+ * @OA\Schema(
+ *     schema="MaterialResource",
+ *     type="object",
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="course_id", type="integer", example=1),
+ *     @OA\Property(property="title", type="string", example="Material Title"),
+ *     @OA\Property(property="file_path", type="string", example="material/file.pdf"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", example="2023-01-01T00:00:00Z"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", example="2023-01-01T00:00:00Z")
+ * )
+ */
 class MaterialController extends BaseController
 {
-
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * @OA\Post(
+     *     path="/api/materials",
+     *     summary="Store a newly created material",
+     *     tags={"Materials"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 required={"course_id", "title", "file"},
+     *                 @OA\Property(property="course_id", type="integer", example=1),
+     *                 @OA\Property(property="title", type="string", example="Material Title"),
+     *                 @OA\Property(property="file", type="string", format="binary")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Material created successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/MaterialResource")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Validation Error."),
+     *             @OA\Property(property="errors", type="object")
+     *         )
+     *     )
+     * )
      */
     public function store(Request $request): JsonResponse
     {
@@ -39,18 +76,40 @@ class MaterialController extends BaseController
             $input['file_path'] = $filePath;
         }
 
-        $Material = Material::create($input);
+        $material = Material::create($input);
 
-        return $this->sendResponse(new MaterialResource($Material), 'Material created successfully.');
+        return $this->sendResponse(new MaterialResource($material), 'Material created successfully.');
     }
 
     /**
-     * Download the specified material file.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @OA\Get(
+     *     path="/api/materials/{id}/download",
+     *     summary="Download a material file",
+     *     tags={"Materials"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="File downloaded successfully",
+     *         @OA\MediaType(
+     *             mediaType="application/octet-stream",
+     *             @OA\Schema(type="string", format="binary")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Material or File not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Material not found or File not found.")
+     *         )
+     *     )
+     * )
      */
-    public function download($id)
+    public function download($id): BinaryFileResponse|JsonResponse
     {
         $material = Material::find($id);
 

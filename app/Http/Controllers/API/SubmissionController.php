@@ -14,14 +14,59 @@ use App\Models\Assignment;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 
+/**
+ * @OA\Schema(
+ *     schema="SubmissionResource",
+ *     type="object",
+ *     @OA\Property(property="id", type="integer"),
+ *     @OA\Property(property="assignment_id", type="integer"),
+ *     @OA\Property(property="student_id", type="integer"),
+ *     @OA\Property(property="file_path", type="string"),
+ *     @OA\Property(property="score", type="integer"),
+ *     @OA\Property(property="created_at", type="string", format="date-time"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ */
 class SubmissionController extends BaseController
 {
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * @OA\Put(
+     *     path="/api/submissions/{id}/grade",
+     *     summary="Update the grade of a submission",
+     *     tags={"Submissions"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="grade", type="integer", example=85)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Grade updated and email sent successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/SubmissionResource")
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Validation Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Validation Error.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Submission not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Submission not found.")
+     *         )
+     *     )
+     * )
      */
     public function updateScore($id, Request $request): JsonResponse
     {
@@ -52,12 +97,42 @@ class SubmissionController extends BaseController
         return $this->sendResponse(new SubmissionResource($submission), 'Score updated and email sent successfully.');
     }
 
-
     /**
-     * Upload a file for submission.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * @OA\Post(
+     *     path="/api/submissions",
+     *     summary="Upload a new submission",
+     *     tags={"Submissions"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(property="assignment_id", type="integer"),
+     *                 @OA\Property(property="student_id", type="integer"),
+     *                 @OA\Property(property="file_path", type="string", format="binary")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="File uploaded and email sent successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/SubmissionResource")
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Validation Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Validation Error.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="File upload failed",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="File upload failed.")
+     *         )
+     *     )
+     * )
      */
     public function upload(Request $request): JsonResponse
     {

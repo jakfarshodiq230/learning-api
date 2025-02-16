@@ -10,14 +10,65 @@ use App\Http\Controllers\API\BaseController as BaseController;
 use App\Http\Resources\CourseResource;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * @OA\Schema(
+ *     schema="CourseResource",
+ *     type="object",
+ *     title="Course Resource",
+ *     @OA\Property(
+ *         property="id",
+ *         type="integer",
+ *         description="ID of the course"
+ *     ),
+ *     @OA\Property(
+ *         property="name",
+ *         type="string",
+ *         description="Name of the course"
+ *     ),
+ *     @OA\Property(
+ *         property="description",
+ *         type="string",
+ *         description="Description of the course"
+ *     ),
+ *     @OA\Property(
+ *         property="lecturer_id",
+ *         type="integer",
+ *         description="ID of the lecturer"
+ *     ),
+ *     @OA\Property(
+ *         property="created_at",
+ *         type="string",
+ *         format="date-time",
+ *         description="Creation timestamp"
+ *     ),
+ *     @OA\Property(
+ *         property="updated_at",
+ *         type="string",
+ *         format="date-time",
+ *         description="Last update timestamp"
+ *     )
+ * )
+ */
 class CourseController extends BaseController
 {
 
+
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * @OA\Get(
+     *     path="/api/courses",
+     *     summary="Get list of courses",
+     *     tags={"Courses"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Courses retrieved successfully",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/CourseResource")
+     *         )
+     *     )
+     * )
      */
+
     public function index(): JsonResponse
     {
         $Course = Course::all();
@@ -26,10 +77,33 @@ class CourseController extends BaseController
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * @OA\Post(
+     *     path="/api/courses",
+     *     summary="Create a new course",
+     *     tags={"Courses"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name", "description", "lecturer_id"},
+     *             @OA\Property(property="name", type="string", maxLength=255),
+     *             @OA\Property(property="description", type="string"),
+     *             @OA\Property(property="lecturer_id", type="integer")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Course created successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/CourseResource")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="errors", type="object")
+     *         )
+     *     )
+     * )
      */
     public function store(Request $request): JsonResponse
     {
@@ -51,10 +125,29 @@ class CourseController extends BaseController
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
+     * @OA\Get(
+     *     path="/api/courses/{id}",
+     *     summary="Get a specific course",
+     *     tags={"Courses"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Course retrieved successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/CourseResource")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Course not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
      */
     public function show($id): JsonResponse
     {
@@ -66,14 +159,42 @@ class CourseController extends BaseController
 
         return $this->sendResponse(new CourseResource($Course), 'Course retrieved successfully.');
     }
-
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
+     * @OA\Put(
+     *     path="/api/courses/{id}",
+     *     summary="Update a specific course",
+     *     tags={"Courses"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name", "description", "lecturer_id"},
+     *             @OA\Property(property="name", type="string", maxLength=255),
+     *             @OA\Property(property="description", type="string"),
+     *             @OA\Property(property="lecturer_id", type="integer")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Course updated successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/CourseResource")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="errors", type="object")
+     *         )
+     *     )
+     * )
      */
+
     public function update(Request $request, Course $Course): JsonResponse
     {
         $input = $request->all();
@@ -97,10 +218,31 @@ class CourseController extends BaseController
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
+     * @OA\Delete(
+     *     path="/api/courses/{id}",
+     *     summary="Delete a specific course",
+     *     tags={"Courses"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Course deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Course not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
      */
     public function destroy(Course $Course): JsonResponse
     {
@@ -110,11 +252,29 @@ class CourseController extends BaseController
     }
 
     /**
-     * Enroll a user in the specified course.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
+     * @OA\Post(
+     *     path="/api/courses/{id}/enroll",
+     *     summary="Enroll a user in a course",
+     *     tags={"Courses"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User enrolled in course successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/CourseResource")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Course not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
      */
     public function enroll(Request $request, $id): JsonResponse
     {

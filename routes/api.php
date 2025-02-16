@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\API\AssigmentController;
+use App\Http\Controllers\API\AssignmentController;
 use App\Http\Controllers\API\CourseController;
 use App\Http\Controllers\API\DiscussionController;
 use App\Http\Controllers\API\MaterialController;
@@ -9,11 +9,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\RegisterController;
 use App\Http\Controllers\API\ReplyController;
 use App\Http\Controllers\API\SubmissionController;
+use PhpParser\Node\Stmt\Return_;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
 // })->middleware('auth:sanctum');
-
 
 Route::controller(RegisterController::class)->group(function () {
     Route::post('register', 'register');
@@ -30,7 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('materials', [MaterialController::class, 'store'])->middleware('role:dosen');
     Route::get('materials/{id}/download', [MaterialController::class, 'download'])->middleware('role:mahasiswa');
 
-    Route::post('assignments', [AssigmentController::class, 'store'])->middleware('role:dosen');
+    Route::post('assignments', [AssignmentController::class, 'store'])->middleware('role:dosen');
     Route::post('submissions', [SubmissionController::class, 'upload'])->middleware('role:mahasiswa');
     Route::post('submissions/{id}/grade', [SubmissionController::class, 'updateScore'])->middleware('role:dosen');
 
@@ -38,6 +38,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('discussions/{id}/replies', [ReplyController::class, 'store'])->middleware('role:dosen,mahasiswa');
 
     Route::get('reports/courses', [CourseController::class, 'courseStatistics'])->middleware('role:dosen');
-    Route::get('reports/assignments', [AssigmentController::class, 'assignmentStatistics'])->middleware('role:dosen');
+    Route::get('reports/assignments', [AssignmentController::class, 'assignmentStatistics'])->middleware('role:dosen');
     Route::get('reports/students/{id}', [SubmissionController::class, 'studentStatistics'])->middleware('role:dosen');
 });
