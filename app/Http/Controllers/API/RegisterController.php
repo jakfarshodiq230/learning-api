@@ -53,7 +53,7 @@ class RegisterController extends BaseController
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email',
             'password' => 'required',
             'c_password' => 'required|same:password',
             'role' => 'required',
@@ -68,8 +68,8 @@ class RegisterController extends BaseController
         $user = User::create($input);
         $success['token'] =  $user->createToken('MyApp')->plainTextToken;
         $success['name'] =  $user->name;
-
-        return $this->sendResponse($success, 'User register successfully.');
+        $user->sendEmailVerificationNotification();
+        return $this->sendResponse($success, 'User registered successfully. Please check your email to verify your account.');
     }
 
     /**

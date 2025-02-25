@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\RegisterController;
 use App\Http\Controllers\API\ReplyController;
 use App\Http\Controllers\API\SubmissionController;
-use PhpParser\Node\Stmt\Return_;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -20,7 +20,7 @@ Route::controller(RegisterController::class)->group(function () {
     Route::post('login', 'login');
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum', 'verified')->group(function () {
 
     Route::post('logout', [RegisterController::class, 'logout']);
 
@@ -40,8 +40,23 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('submissions', [SubmissionController::class, 'upload']);
     });
 
-    Route::middleware('role:dosen,mahasiswa')->group(function () {
+    Route::middleware('role:dosen|mahasiswa')->group(function () {
         Route::post('discussions', [DiscussionController::class, 'store']);
         Route::post('discussions/{id}/replies', [ReplyController::class, 'store']);
     });
 });
+
+// Email Verification Routes
+Route::get('/email/verify', function () {
+    return response()->json(['message' => 'Email verification required.'], 403);
+})->middleware('auth:sanctum')->name('verification.notice');
+
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    return response()->json(['message' => 'Email verified successfully.']);
+})->middleware(['auth:sanctum', 'signed'])->name('verification.verify');
+
+Route::post('/email/resend', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return response()->json(['message' => 'Verification link sent!']);
+})->middleware(['auth:sanctum', 'throttle:6,1'])->name('verification.send');
